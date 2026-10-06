@@ -1,0 +1,23 @@
+project:
+  name: "motor-insurance-pricing"
+  version: "0.1.0"
+  random_seed: 42
+
+data:
+  openml:
+    freq_data_id: 41214  # freMTPL2freq
+    sev_data_id: 41215   # freMTPL2sev
+  paths:
+    raw_dir: "data/raw"
+    processed_dir: "data/processed"
+    database_dir: "data/database"
+    duckdb_path: "data/database/motor_portfolio.duckdb"
+    raw_freq_file: "data/raw/freMTPL2freq.parquet"
+    raw_sev_file: "data/raw/freMTPL2sev.parquet"
+    abt_file: "data/processed/abt_motor_portfolio.parquet"
+
+cleaning:
+  min_exposure: 0.0027397  # 1 day in years (1/365)
+  max_exposure: 1.0        # Cap exposure at 1.0 policy year
+  max_claim_nb_cap: 4      # Cap extreme multi-claim counts
+  large_loss_threshold: 100000.0  # Cutoff for attritional vs extreme catastrophic losses (€)
