@@ -28,6 +28,8 @@ def download_fremtpl2_data(config: dict) -> tuple[pd.DataFrame, pd.DataFrame]:
         logger.info("Loading cached raw datasets from %s", config["data"]["paths"]["raw_dir"])
         df_freq = pd.read_parquet(raw_freq_path)
         df_sev = pd.read_parquet(raw_sev_path)
+        # Clean quotes if present in cached data
+        df_freq["VehGas"] = df_freq["VehGas"].astype(str).str.replace("'", "").str.strip()
         return df_freq, df_sev
 
     logger.info("Fetching freMTPL2freq from OpenML (ID: %s)...", config["data"]["openml"]["freq_data_id"])
@@ -48,7 +50,7 @@ def download_fremtpl2_data(config: dict) -> tuple[pd.DataFrame, pd.DataFrame]:
     df_freq["Density"] = df_freq["Density"].astype("int32")
 
     for cat_col in ["Area", "VehBrand", "VehGas", "Region"]:
-        df_freq[cat_col] = df_freq[cat_col].astype(str)
+        df_freq[cat_col] = df_freq[cat_col].astype(str).str.replace("'", "").str.strip()
 
     df_sev["IDpol"] = df_sev["IDpol"].astype("int64")
     df_sev["ClaimAmount"] = df_sev["ClaimAmount"].astype("float64")
