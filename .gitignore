@@ -1,0 +1,29 @@
+# Python & Virtual Environments
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Data & Databases
+data/raw/
+data/processed/
+data/database/
+*.duckdb
+*.parquet
+*.csv
+
+# Distribution / Packaging
+build/
+dist/
+*.egg-info/
+
+# Operating System & IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log
