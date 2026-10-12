@@ -8,13 +8,12 @@ __pycache__/
 .pytest_cache/
 .ipynb_checkpoints/
 
-# Data & Databases
+# Data & Models
 data/raw/
 data/processed/
-data/database/
-*.duckdb
 *.parquet
 *.csv
+models/
 
 # Distribution / Packaging
 build/

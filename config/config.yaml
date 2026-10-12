@@ -10,14 +10,77 @@ data:
   paths:
     raw_dir: "data/raw"
     processed_dir: "data/processed"
-    database_dir: "data/database"
-    duckdb_path: "data/database/motor_portfolio.duckdb"
     raw_freq_file: "data/raw/freMTPL2freq.parquet"
     raw_sev_file: "data/raw/freMTPL2sev.parquet"
     abt_file: "data/processed/abt_motor_portfolio.parquet"
+    models_dir: "models"
+    glm_freq_results: "models/glm_freq_results.pkl"
+    glm_sev_results: "models/glm_sev_results.pkl"
+    glm_tweedie_results: "models/glm_tweedie_results.pkl"
+    xgb_freq_booster: "models/xgb_freq.ubj"
+    xgb_sev_booster: "models/xgb_sev.ubj"
+    xgb_tweedie_booster: "models/xgb_tweedie.ubj"
+    pred_glm_file: "data/processed/pred_glm.parquet"
+    pred_xgb_file: "data/processed/pred_xgb.parquet"
+    balance_factors_file: "models/balance_factors.json"
 
 cleaning:
   min_exposure: 0.0027397  # 1 day in years (1/365)
   max_exposure: 1.0        # Cap exposure at 1.0 policy year
   max_claim_nb_cap: 4      # Cap extreme multi-claim counts
   large_loss_threshold: 100000.0  # Cutoff for attritional vs extreme catastrophic losses (€)
+
+split:
+  test_size: 0.2   # Held-out test fraction (final evaluation)
+  val_size: 0.1    # Validation fraction (XGBoost early stopping)
+
+evaluation:
+  tweedie_p: 1.5          # Variance power for pure-premium deviance
+  n_deciles: 10           # Buckets for calibration / decile tables
+  double_lift_bins: 10    # Buckets for the double-lift chart
+  shap_sample_size: 10000 # Max rows for TreeSHAP explanations
+  severity_hist_cap: 10000 # Right-truncation for the severity histogram (€)
+  severity_hist_bins: 60   # Bins for the severity histogram
+
+bands:
+  # EDA segment bars (notebook 01)
+  driv_age_eda: {bins: [17, 25, 35, 50, 65, 200], labels: ["18-24", "25-34", "35-49", "50-64", "65+"]}
+  bonus_malus_eda: {bins: [49, 50, 69, 99, 100, 1000], labels: ["50", "51-69", "70-99", "100", "101+"]}
+  # Ratebook relativities (notebook 06)
+  driv_age_ratebook: {bins: [17, 25, 35, 50, 65, 100], labels: ["18-25 (Young)", "26-35", "36-50", "51-65", "66+ (Senior)"]}
+  veh_age_ratebook: {bins: [-1, 0, 4, 9, 14, 100], labels: ["0 (Brand New)", "1-4", "5-9", "10-14", "15+ (Old)"]}
+  bonus_malus_ratebook: {bins: [49, 50, 65, 80, 100, 150, 350], labels: ["50 (Max Bonus)", "51-65", "66-80", "81-100 (Base)", "101-150", ">150 (Severe Malus)"]}
+
+models:
+  xgb_frequency:
+    max_depth: 4
+    learning_rate: 0.05
+    n_estimators: 300
+    subsample: 0.8
+    colsample_bytree: 0.8
+    min_child_weight: 20.0
+    random_state: 42
+    enforce_monotonic_bm: true
+    early_stopping_rounds: 25
+  xgb_severity:
+    max_depth: 3
+    learning_rate: 0.03
+    n_estimators: 150
+    subsample: 0.8
+    colsample_bytree: 0.8
+    min_child_weight: 15.0
+    random_state: 42
+    large_loss_threshold: 100000.0
+    early_stopping_rounds: 20
+  xgb_tweedie:
+    tweedie_variance_power: 1.5
+    max_depth: 4
+    learning_rate: 0.05
+    n_estimators: 250
+    subsample: 0.8
+    colsample_bytree: 0.8
+    min_child_weight: 20.0
+    random_state: 42
+    early_stopping_rounds: 25
+  glm_tweedie:
+    var_power: 1.5
